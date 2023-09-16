@@ -330,3 +330,26 @@ jobs:
         run: cmake -S c -B c/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/target
       - name: CMake build / install
         run: cmake --build c/build --target install
+
+  # Meson build test (Library only), current macOS/Linux only.
+  meson_build:
+    name: Meson ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+        compiler: [gcc, clang, cl]
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: macOS-latest
+            compiler: msvc
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v1
+      - uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
