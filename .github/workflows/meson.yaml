@@ -13,7 +13,7 @@ env:
 jobs:
   # Meson build test (Library only), current macOS/Linux only.
   meson_build:
-    name: Meson ${{ matrix.os }}
+    name: Meson ${{ matrix.os }}-${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -24,16 +24,30 @@ jobs:
           - os: windows-latest
             compiler: gcc
           - os: ubuntu-latest
-            compiler: msvc
+            compiler: cl
           - os: macOS-latest
-            compiler: msvc
+            compiler: cl
     steps:
       - uses: actions/checkout@v3
+      - name: Enable Windows developer command prompt
+        uses: ilammy/msvc-dev-cmd@v1
+        if: ${{ matrix.os == 'windows-latest' }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - uses: BSFishy/meson-build@v1.0.3
+      - name: Install meson
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install 'meson>=1.0.0' ninja
+      - name: Setup meson
+        run: meson setup build
+        env:
+          CC: ${{ matrix.compiler }}
+          NASM: ml64
+      - name: Compile
+        run: meson compile -C build --verbose
+      - uses: actions/upload-artifact@v3
         with:
-          action: build
-          meson-version: '1.2.1'
-          options: '--verbose'
+          name: meson-log-${{ matrix.os }}-${{ matrix.compiler }}
+          path: build\meson-logs\meson-log.txt
+          if-no-files-found: ignore
