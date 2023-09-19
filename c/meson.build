@@ -10,6 +10,12 @@ system = host_machine.system()
 cpu_family = host_machine.cpu_family()
 compiler = meson.get_compiler('c', native: true).get_id()
 
+if compiler in ['gcc', 'clang']
+  c_args = ['-fvisibility=hidden']
+else
+  c_args = []
+endif
+
 if cpu_family == 'x86_64'
 
   if compiler == 'msvc'
@@ -73,5 +79,5 @@ blake3_lib = static_library(
   'blake3',
   blake3_src,
   include_directories: blake3_inc,
-  c_args : simd_flags,
+  c_args : c_args + simd_flags,
 )
