@@ -1,0 +1,37 @@
+name: meson
+
+on:
+  push:
+    branches:
+      - "*"
+    # not on tags
+  pull_request:
+
+env:
+  BLAKE3_CI: "1"
+
+jobs:
+  # Meson build test (Library only), current macOS/Linux only.
+  meson_build:
+    name: Meson ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+        compiler: [gcc, clang, cl]
+        exclude:
+          - os: windows-latest
+            compiler: gcc
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: macOS-latest
+            compiler: msvc
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
