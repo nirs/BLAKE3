@@ -36,3 +36,4 @@ jobs:
         with:
           action: build
           meson-version: '1.2.1'
+          options: '--verbose'
