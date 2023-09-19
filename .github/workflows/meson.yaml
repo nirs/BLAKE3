@@ -29,9 +29,6 @@ jobs:
             compiler: cl
     steps:
       - uses: actions/checkout@v3
-      - name: Enable Windows developer command prompt
-        uses: ilammy/msvc-dev-cmd@v1
-        if: ${{ matrix.os == 'windows-latest' }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -40,14 +37,15 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install 'meson>=1.0.0' ninja
       - name: Setup meson
+        if: ${{ matrix.compiler != 'cl' }}
         run: meson setup build
-        env:
-          CC: ${{ matrix.compiler }}
-          NASM: ml64
+      - name: Setup meson for MSVC
+        if: ${{ matrix.compiler == 'cl' }}
+        run: meson setup build --vsenv
       - name: Compile
         run: meson compile -C build --verbose
       - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: meson-log-${{ matrix.os }}-${{ matrix.compiler }}
           path: build\meson-logs\meson-log.txt
-          if-no-files-found: ignore

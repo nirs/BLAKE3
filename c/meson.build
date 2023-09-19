@@ -20,8 +20,6 @@ if cpu_family == 'x86_64'
 
   if compiler == 'msvc'
 
-    add_languages('nasm', native: true)
-
     blake3_src += [
       'blake3_avx2_x86-64_windows_msvc.asm',
       'blake3_avx512_x86-64_windows_msvc.asm',
