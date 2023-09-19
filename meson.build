@@ -5,6 +5,7 @@ project(
   meson_version: '>= 1.0.0',
   default_options: [
     'buildtype=release',
+    'b_ndebug=true',
   ]
 )
 
